@@ -27,8 +27,10 @@ const server = app.listen(3000, () => {
 
 app.get('/showDatabase', controllers.showDatabase);
 
+app.get('/isLogged', controllers.isLogged);
+
 app.post('/register', controllers.register);
 
 app.post('/login', controllers.login);
 
-app.get('/isLogged', controllers.isLogged);
+app.POST('/purchase', controllers.purchase);
