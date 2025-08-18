@@ -33,4 +33,5 @@ app.post('/register', controllers.register);
 
 app.post('/login', controllers.login);
 
-app.POST('/purchase', controllers.purchase);
+app.post('/purchase', controllers.purchase);
+
