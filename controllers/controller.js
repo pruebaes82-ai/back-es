@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const pool = require('../database');
 const validations = require('../validations/schema');
+const { id } = require('zod/v4/locales');
 
 
 
@@ -10,7 +12,7 @@ exports.register = async (req, res) => {
     // Validar datos con Zod
     const result = validations.registerSchema.safeParse({ name, email, password });
     if (!result.success) {
-        return res.status(400).json({ error: result.error.errors.map(e => e.message).join(', ') });
+        return res.status(400).json({ error: "Error en la contraseña: " + result.error.errors.map(e => e.message).join('. ') });
     }
 
     try {
@@ -59,12 +61,52 @@ exports.login = async (req, res) => {
             return res.status(401).json({ error: 'Usuario o contraseña inválidos' });
         }
 
-        // No enviar la contraseña en la respuesta
-        const { password: _, ...userWithoutPassword } = user;
+        // Generar token JWT
+        const token = jwt.sign({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        }, process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
 
-        res.json({ mensaje: `Bienvenido ${user.name}`, user: userWithoutPassword });
+        // Incluir cookie con el token en la respuesta
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: true,     // true en produccion
+            sameSite: 'None',   // None en produccion
+            maxAge: 3600000,
+            path: '/',         // para que esté disponible en todo el dominio
+        });
+
+
+        res.json({ mensaje: `Bienvenido ${user.name}` });
     } catch (error) {
         res.status(500).json({ error: 'Error al iniciar sesión', details: error.message });
     }
 }
 
+exports.showDatabase = async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM users');
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al mostrar la base de datos', details: error.message });
+    }
+}
+
+exports.isLogged = (req, res) => {
+    const token = req.cookies.token;
+
+    if (!token) {
+        return res.status(401).json({ error: 'No se ha proporcionado un token' });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(403).json({ error: 'Token inválido o expirado' });
+        }
+
+        res.json({ user: decoded });
+    });
+}
