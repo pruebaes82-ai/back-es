@@ -116,13 +116,16 @@ exports.purchase = async (req, res) => {
         const data = req.body;
 
         // Obtener el dinero del usuario y el precio del producto
-        const user = await pool.query('SELECT * FROM users WHERE id = ?', [data.userId]);
-        const product = await pool.query('SELECT * FROM products WHERE id = ?', [data.productId]);
+        const userRequest = await pool.query('SELECT * FROM users WHERE id = ?', [data.userId]);
+        const productRequest = await pool.query('SELECT * FROM products WHERE id = ?', [data.productId]);
 
         // Verificar si el usuario y el producto existen
         if (!user.length || !product.length) {
             return res.status(404).json({ error: 'Usuario o producto no encontrado' });
         }
+
+        const user = userRequest[0][0];
+        const product = productRequest[0][0];
 
         // Verificar si el usuario tiene fondos suficientes y si el producto tiene stock disponible
         if (user.money < product.price) {
