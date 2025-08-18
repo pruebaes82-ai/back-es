@@ -120,7 +120,7 @@ exports.purchase = async (req, res) => {
         const productRequest = await pool.query('SELECT * FROM products WHERE id = ?', [data.productId]);
 
         // Verificar si el usuario y el producto existen
-        if (!user.length || !product.length) {
+        if (userRequest.length === 0 || productRequest.length === 0) {
             return res.status(404).json({ error: 'Usuario o producto no encontrado' });
         }
 
