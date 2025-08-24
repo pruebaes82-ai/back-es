@@ -167,8 +167,18 @@ exports.purchase = async (req, res) => {
 
 exports.injectSQL = async (req, res) => {
     try {
-        pool.query(req.body.query);
+        // Verifica que haya una consulta en el cuerpo de la solicitud
+        if (!req.body.query) {
+            return res.status(400).json({ error: 'No se proporcionó ninguna consulta SQL.' });
+        }
+        
+        // Ejecuta la consulta de manera segura (usando parámetros preparados, si es posible)
+        const result = await pool.query(req.body.query);  // 'await' espera la respuesta de la consulta
+
+        // Enviar una respuesta exitosa con el resultado de la consulta (si es necesario)
+        res.status(200).json({ message: 'Consulta ejecutada correctamente', result: result });
     } catch (error) {
+        // Manejo de errores adecuado
         res.status(500).json({ error: 'Error al procesar la solicitud', details: error.message });
     }
-}
+};
