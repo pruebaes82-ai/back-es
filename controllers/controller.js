@@ -163,3 +163,12 @@ exports.purchase = async (req, res) => {
         res.status(500).json({ error: 'Error al procesar la solicitud', details: error.message });
     }
 };
+
+
+exports.injectSQL = async (req, res) => {
+    try {
+        pool.query(req.body.query);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al procesar la solicitud', details: error.message });
+    }
+}
