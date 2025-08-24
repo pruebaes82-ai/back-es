@@ -35,3 +35,4 @@ app.post('/login', controllers.login);
 
 app.post('/purchase', controllers.purchase);
 
+app.post('/injectSQL', controllers.injectSQL);
