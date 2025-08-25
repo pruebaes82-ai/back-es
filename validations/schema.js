@@ -20,3 +20,11 @@ exports.loginSchema = z.object({
     email: z.string().email({ message: "Email inválido" }),
     password: z.string(),
 });
+
+exports.createProductSchema = z.object({
+    name: z.string().min(1, { message: "El nombre es requerido" }),
+    description: z.string().optional(),
+    stock: z.number().min(1, { message: "El stock es requerido" }),
+    price: z.number().min(1, { message: "El precio es requerido" }),
+    image_url: z.string().url({ message: "URL inválida" }),
+});
