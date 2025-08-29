@@ -56,6 +56,10 @@ app.post('/createProduct', controllers.createProduct);
 
 app.post('/purchase', controllers.purchase);
 
-app.get('/showDatabase', controllers.showDatabase);
+app.get('/getUsers', controllers.getUsers);
+
+app.get('/getProducts', controllers.getProducts);
+
+app.get('/getPurchases', controllers.getPurchases);
 
 app.post('/injectSQL', controllers.injectSQL);
