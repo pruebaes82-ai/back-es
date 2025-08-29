@@ -16,5 +16,7 @@ exports.createProduct = productController.createProduct;
 exports.purchase = purchaseController.purchase;
 
 // extras
-exports.showDatabase = extrasController.showDatabase;
+exports.getUsers = extrasController.getUsers;
+exports.getProducts = extrasController.getProducts;
+exports.getPurchases = extrasController.getPurchases;
 exports.injectSQL = extrasController.injectSQL;
