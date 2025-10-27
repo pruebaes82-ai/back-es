@@ -1,6 +1,10 @@
-import { db } from '../database.js';  // tu archivo database.js con SQLite
+const { db } = require('../database.js'); // tu archivo database.js
+const validations = require('../validations/schema.js');
 
-export const getUsers = async (req, res) => {
+// =====================
+// GET USERS
+// =====================
+exports.getUsers = async (req, res) => {
     try {
         if (!req.user) {
             return res.status(401).json({ message: 'No estás autenticado. Inicia sesión primero.' });
@@ -12,7 +16,6 @@ export const getUsers = async (req, res) => {
             return res.status(403).json({ message: 'No tienes permisos para ver la base de datos.' });
         }
 
-        // Obtener solo la cantidad de registros que se pida
         let rows;
         if (req.limit) {
             rows = await db.all('SELECT * FROM users LIMIT ?', req.limit);
@@ -26,7 +29,10 @@ export const getUsers = async (req, res) => {
     }
 };
 
-export const getProducts = async (req, res) => {
+// =====================
+// GET PRODUCTS
+// =====================
+exports.getProducts = async (req, res) => {
     try {
         if (!req.user) {
             return res.status(401).json({ message: 'No estás autenticado. Inicia sesión primero.' });
@@ -51,7 +57,10 @@ export const getProducts = async (req, res) => {
     }
 };
 
-export const getPurchases = async (req, res) => {
+// =====================
+// GET PURCHASES
+// =====================
+exports.getPurchases = async (req, res) => {
     try {
         if (!req.user) {
             return res.status(401).json({ message: 'No estás autenticado. Inicia sesión primero.' });
@@ -76,7 +85,10 @@ export const getPurchases = async (req, res) => {
     }
 };
 
-export const injectSQL = async (req, res) => {
+// =====================
+// INJECT SQL
+// =====================
+exports.injectSQL = async (req, res) => {
     try {
         if (!req.user) {
             return res.status(401).json({ message: 'No estás autenticado. Inicia sesión primero.' });
@@ -88,7 +100,6 @@ export const injectSQL = async (req, res) => {
             return res.status(403).json({ message: 'No tienes permisos para ver la base de datos.' });
         }
 
-        // Ejecutar consulta arbitraria
         await db.exec(req.body.query);
 
         res.json({ mensaje: 'Consulta ejecutada con éxito' });
