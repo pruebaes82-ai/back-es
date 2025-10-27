@@ -1,40 +1,47 @@
-const pool = require('../database');
+const { db } = require('../database.js'); // tu archivo database.js
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const validations = require('../validations/schema');
+const validations = require('../validations/schema.js');
 
-
-
+// =====================
+// REGISTRO DE USUARIO
+// =====================
 exports.register = async (req, res) => {
     const { name, email, password } = req.body;
 
     // Validar datos con Zod
     const result = validations.registerSchema.safeParse({ name, email, password });
     if (!result.success) {
-        return res.status(400).json({ error: "Error en la contraseña: " + result.error.errors.map(e => e.message).join('. ') });
+        return res.status(400).json({
+            error: "Error en la contraseña: " + result.error.errors.map(e => e.message).join('. ')
+        });
     }
 
     try {
-        // Hashear la contraseña antes de guardar
+        // Hashear la contraseña
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Verificar si el usuario ya existe
-        const [existingUser] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
-        if (existingUser.length > 0) {
+        const existingUser = await db.get('SELECT * FROM users WHERE email = ?', email);
+        if (existingUser) {
             return res.status(400).json({ error: 'Este email ya está en uso, pruebe a loguearse' });
         }
 
         // Insertar usuario en la base de datos
-        const [dbResult] = await pool.query(
+        const resultInsert = await db.run(
             'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
-            [name, email, hashedPassword]
+            name, email, hashedPassword
         );
-        res.json({ mensaje: `Usuario registrado: ${name}`, id: dbResult.insertId });
+
+        res.json({ mensaje: `Usuario registrado: ${name}`, id: resultInsert.lastID });
     } catch (error) {
         res.status(500).json({ error: 'Error al registrar usuario', details: error.message });
     }
 };
 
+// =====================
+// LOGIN DE USUARIO
+// =====================
 exports.login = async (req, res) => {
     const { email, password } = req.body;
 
@@ -46,15 +53,12 @@ exports.login = async (req, res) => {
 
     try {
         // Buscar usuario por el email
-        const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
-
-        if (rows.length === 0) {
+        const user = await db.get('SELECT * FROM users WHERE email = ?', email);
+        if (!user) {
             return res.status(401).json({ error: 'Usuario o contraseña inválidos' });
         }
 
-        const user = rows[0];
-
-        // Comparar contraseña recibida con la almacenada mediante bcrypt
+        // Comparar contraseña
         const isValid = await bcrypt.compare(password, user.password);
         if (!isValid) {
             return res.status(401).json({ error: 'Usuario o contraseña inválidos' });
@@ -65,26 +69,27 @@ exports.login = async (req, res) => {
             id: user.id,
             name: user.name,
             email: user.email,
-        }, process.env.JWT_SECRET,
-            { expiresIn: '1h' }
-        );
+            role: user.role
+        }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        // Incluir cookie con el token en la respuesta
+        // Enviar cookie con el token
         res.cookie('token', token, {
             httpOnly: true,
-            secure: true,     // true en produccion
-            sameSite: 'None',   // None en produccion
+            secure: true,     // true en producción
+            sameSite: 'None', // None en producción
             maxAge: 3600000,
-            path: '/',         // para que esté disponible en todo el dominio
+            path: '/'
         });
-
 
         res.json({ mensaje: `Bienvenido ${user.name}` });
     } catch (error) {
         res.status(500).json({ error: 'Error al iniciar sesión', details: error.message });
     }
-}
+};
 
+// =====================
+// VERIFICAR SI ESTÁ LOGUEADO
+// =====================
 exports.isLogged = (req, res) => {
     const token = req.cookies.token;
 
@@ -99,4 +104,4 @@ exports.isLogged = (req, res) => {
 
         res.json({ user: decoded });
     });
-}
+};
