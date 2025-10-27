@@ -1,9 +1,12 @@
-const pool = require('../database');
-const validations = require('../validations/schema');
+const { db } = require('../database.js'); // tu archivo database.js
+const validations = require('../validations/schema.js');
 
+// =====================
+// CREAR PRODUCTO
+// =====================
 exports.createProduct = async (req, res) => {
 
-    // Verificar si el usuario tiene un token válido
+    // Verificar si el usuario tiene token válido
     if (!req.user) {
         return res.status(401).json({ message: 'No estás autenticado. Inicia sesión primero.' });
     }
@@ -19,15 +22,15 @@ exports.createProduct = async (req, res) => {
     }
 
     try {
-        const [dbResult] = await pool.query(
+        const dbResult = await db.run(
             'INSERT INTO products (name, description, stock, price, image_url, publisher_id) VALUES (?, ?, ?, ?, ?, ?)',
-            [name, description, stock, price, image_url, req.user.id]
+            name, description, stock, price, image_url, req.user.id
         );
 
         res.json({
             message: `Producto creado: ${name}`,
             product: {
-                id: dbResult.insertId,
+                id: dbResult.lastID,
                 name,
                 description,
                 stock,
@@ -39,5 +42,5 @@ exports.createProduct = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Error al crear producto', details: error.message });
     }
-
+};
 }
