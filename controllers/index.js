@@ -1,22 +1,21 @@
-const loginController = require('./login');
-const productController = require('./product');
-const purchaseController = require('./purchase');
-const extrasController = require('./extras');
-
+import * as loginController from './login.js';
+import * as productController from './product.js';
+import * as purchaseController from './purchase.js';
+import * as extrasController from './extras.js';
 
 // Login
-exports.register = loginController.register;
-exports.login = loginController.login;
-exports.isLogged = loginController.isLogged;
+export const register = loginController.register;
+export const login = loginController.login;
+export const isLogged = loginController.isLogged;
 
 // Products
-exports.createProduct = productController.createProduct;
+export const createProduct = productController.createProduct;
 
-// purchase
-exports.purchase = purchaseController.purchase;
+// Purchase
+export const purchase = purchaseController.purchase;
 
-// extras
-exports.getUsers = extrasController.getUsers;
-exports.getProducts = extrasController.getProducts;
-exports.getPurchases = extrasController.getPurchases;
-exports.injectSQL = extrasController.injectSQL;
+// Extras
+export const getUsers = extrasController.getUsers;
+export const getProducts = extrasController.getProducts;
+export const getPurchases = extrasController.getPurchases;
+export const injectSQL = extrasController.injectSQL;
