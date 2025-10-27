@@ -1,98 +1,98 @@
-const pool = require('../database');
+import { db } from '../database.js';  // tu archivo database.js con SQLite
 
-
-exports.getUsers = async (req, res) => {
+export const getUsers = async (req, res) => {
     try {
         if (!req.user) {
             return res.status(401).json({ message: 'No estás autenticado. Inicia sesión primero.' });
         }
 
-        const isAdmin = await pool.query('SELECT role FROM users WHERE id = ?', [req.user.id]);
+        const isAdmin = await db.get('SELECT role FROM users WHERE id = ?', req.user.id);
 
-        if (isAdmin[0][0].role !== 'admin') {
+        if (isAdmin.role !== 'admin') {
             return res.status(403).json({ message: 'No tienes permisos para ver la base de datos.' });
         }
 
-        // obtener solo la cantidad de registros que se pida
+        // Obtener solo la cantidad de registros que se pida
+        let rows;
         if (req.limit) {
-            const [rows] = await pool.query('SELECT * FROM users LIMIT ?', [parseInt(req.limit)]);
-            return res.json(rows);
+            rows = await db.all('SELECT * FROM users LIMIT ?', req.limit);
+        } else {
+            rows = await db.all('SELECT * FROM users');
         }
 
-        // si no se especifica devuelve todos
-        const [rows] = await pool.query('SELECT * FROM users');
         res.json(rows);
     } catch (error) {
         res.status(500).json({ error: 'Error al mostrar la base de datos', details: error.message });
     }
-}
+};
 
-exports.getProducts = async (req, res) => {
+export const getProducts = async (req, res) => {
     try {
         if (!req.user) {
             return res.status(401).json({ message: 'No estás autenticado. Inicia sesión primero.' });
         }
 
-        const isAdmin = await pool.query('SELECT role FROM users WHERE id = ?', [req.user.id]);
+        const isAdmin = await db.get('SELECT role FROM users WHERE id = ?', req.user.id);
 
-        if (isAdmin[0][0].role !== 'admin') {
+        if (isAdmin.role !== 'admin') {
             return res.status(403).json({ message: 'No tienes permisos para ver la base de datos.' });
         }
 
-        // obtener solo la cantidad de registros que se pida
+        let rows;
         if (req.limit) {
-            const [rows] = await pool.query('SELECT * FROM products LIMIT ?', [parseInt(req.limit)]);
-            return res.json(rows);
+            rows = await db.all('SELECT * FROM products LIMIT ?', req.limit);
+        } else {
+            rows = await db.all('SELECT * FROM products');
         }
 
-        // si no se especifica devuelve todos
-        const [rows] = await pool.query('SELECT * FROM products');
         res.json(rows);
     } catch (error) {
         res.status(500).json({ error: 'Error al mostrar la base de datos', details: error.message });
     }
-}
+};
 
-exports.getPurchases = async (req, res) => {
+export const getPurchases = async (req, res) => {
     try {
         if (!req.user) {
             return res.status(401).json({ message: 'No estás autenticado. Inicia sesión primero.' });
         }
 
-        const isAdmin = await pool.query('SELECT role FROM users WHERE id = ?', [req.user.id]);
+        const isAdmin = await db.get('SELECT role FROM users WHERE id = ?', req.user.id);
 
-        if (isAdmin[0][0].role !== 'admin') {
+        if (isAdmin.role !== 'admin') {
             return res.status(403).json({ message: 'No tienes permisos para ver la base de datos.' });
         }
 
-        // obtener solo la cantidad de registros que se pida
+        let rows;
         if (req.limit) {
-            const [rows] = await pool.query('SELECT * FROM purchases LIMIT ?', [parseInt(req.limit)]);
-            return res.json(rows);
+            rows = await db.all('SELECT * FROM purchases LIMIT ?', req.limit);
+        } else {
+            rows = await db.all('SELECT * FROM purchases');
         }
 
-        // si no se especifica devuelve todos
-        const [rows] = await pool.query('SELECT * FROM purchases');
         res.json(rows);
     } catch (error) {
         res.status(500).json({ error: 'Error al mostrar la base de datos', details: error.message });
     }
-}
+};
 
-exports.injectSQL = async (req, res) => {
+export const injectSQL = async (req, res) => {
     try {
         if (!req.user) {
             return res.status(401).json({ message: 'No estás autenticado. Inicia sesión primero.' });
         }
 
-        const isAdmin = await pool.query('SELECT role FROM users WHERE id = ?', [req.user.id]);
+        const isAdmin = await db.get('SELECT role FROM users WHERE id = ?', req.user.id);
 
-        if (isAdmin[0][0].role !== 'admin') {
+        if (isAdmin.role !== 'admin') {
             return res.status(403).json({ message: 'No tienes permisos para ver la base de datos.' });
         }
 
-        pool.query(req.body.query);
+        // Ejecutar consulta arbitraria
+        await db.exec(req.body.query);
+
+        res.json({ mensaje: 'Consulta ejecutada con éxito' });
     } catch (error) {
         res.status(500).json({ error: 'Error al procesar la solicitud', details: error.message });
     }
-}
+};
