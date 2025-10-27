@@ -1,27 +1,21 @@
-const { z } = require('zod');
+import { z } from 'zod';
 
-exports.registerSchema = z.object({
+export const registerSchema = z.object({
     name: z.string().min(1, { message: "El nombre es requerido" }),
     email: z.string().email({ message: "Email inválido" }),
     password: z.string()
         .min(8, { message: 'Debe tener al menos 8 caracteres' })
-        .refine((val) => /[A-Z]/.test(val), {
-            message: 'Debe tener al menos una mayúscula',
-        })
-        .refine((val) => /[0-9]/.test(val), {
-            message: 'Debe tener al menos un número',
-        })
-        .refine((val) => /[^A-Za-z0-9]/.test(val), {
-            message: 'Debe tener al menos un símbolo',
-        }),
+        .refine((val) => /[A-Z]/.test(val), { message: 'Debe tener al menos una mayúscula' })
+        .refine((val) => /[0-9]/.test(val), { message: 'Debe tener al menos un número' })
+        .refine((val) => /[^A-Za-z0-9]/.test(val), { message: 'Debe tener al menos un símbolo' }),
 });
 
-exports.loginSchema = z.object({
+export const loginSchema = z.object({
     email: z.string().email({ message: "Email inválido" }),
     password: z.string(),
 });
 
-exports.createProductSchema = z.object({
+export const createProductSchema = z.object({
     name: z.string().min(1, { message: "El nombre es requerido" }),
     description: z.string().optional(),
     stock: z.number().min(1, { message: "El stock es requerido" }),
