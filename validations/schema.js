@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const registerSchema = z.object({
+const registerSchema = z.object({
     name: z.string().min(1, { message: "El nombre es requerido" }),
     email: z.string().email({ message: "Email inválido" }),
     password: z.string()
@@ -10,15 +10,21 @@ export const registerSchema = z.object({
         .refine((val) => /[^A-Za-z0-9]/.test(val), { message: 'Debe tener al menos un símbolo' }),
 });
 
-export const loginSchema = z.object({
+const loginSchema = z.object({
     email: z.string().email({ message: "Email inválido" }),
     password: z.string(),
 });
 
-export const createProductSchema = z.object({
+const createProductSchema = z.object({
     name: z.string().min(1, { message: "El nombre es requerido" }),
     description: z.string().optional(),
     stock: z.number().min(1, { message: "El stock es requerido" }),
     price: z.number().min(1, { message: "El precio es requerido" }),
     image_url: z.string().url({ message: "URL inválida" }),
 });
+
+export default {
+    registerSchema,
+    loginSchema,
+    createProductSchema,
+};
