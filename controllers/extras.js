@@ -18,21 +18,24 @@ export const getUsers = async (req, res) => {
 };
 
 export const getProducts = async (req, res) => {
-    try {
-        if (!req.user) return res.status(401).json({ message: 'No estás autenticado.' });
+  try {
+    // Eliminar la verificación de autenticación
+    // if (!req.user) return res.status(401).json({ message: 'No estás autenticado.' });
 
-        const isAdmin = await db.get('SELECT role FROM users WHERE id = ?', req.user.id);
-        if (isAdmin.role !== 'admin') return res.status(403).json({ message: 'No tienes permisos.' });
+    // Eliminar la verificación del rol de admin
+    // const isAdmin = await db.get('SELECT role FROM users WHERE id = ?', req.user.id);
+    // if (isAdmin.role !== 'admin') return res.status(403).json({ message: 'No tienes permisos.' });
 
-        const rows = req.limit
-            ? await db.all('SELECT * FROM products LIMIT ?', req.limit)
-            : await db.all('SELECT * FROM products');
+    const rows = req.limit
+      ? await db.all('SELECT * FROM products LIMIT ?', req.limit)
+      : await db.all('SELECT * FROM products');
 
-        res.json(rows);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+    res.json(rows); // Devolver los productos en formato JSON
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
+
 
 export const getPurchases = async (req, res) => {
     try {
@@ -64,3 +67,4 @@ export const injectSQL = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
