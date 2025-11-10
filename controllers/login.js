@@ -12,15 +12,15 @@ export const register = async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const existingUser = await db.get('SELECT * FROM users WHERE email = ?', email);
-        if (existingUser) return res.status(400).json({ error: 'Este email ya está en uso' });
+        const existingUser = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (existingUser.rows.length > 0) return res.status(400).json({ error: 'Este email ya está en uso' });
 
-        const dbResult = await db.run(
-            'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
-            name, email, hashedPassword
+        const dbResult = await db.query(
+            'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id',
+            [name, email, hashedPassword]
         );
 
-        res.json({ mensaje: `Usuario registrado: ${name}`, id: dbResult.lastID });
+        res.json({ mensaje: `Usuario registrado: ${name}`, id: dbResult.rows[0].id });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -33,9 +33,10 @@ export const login = async (req, res) => {
     if (!result.success) return res.status(400).json({ error: result.error.errors.map(e => e.message).join('. ') });
 
     try {
-        const user = await db.get('SELECT * FROM users WHERE email = ?', email);
-        if (!user) return res.status(401).json({ error: 'Usuario o contraseña inválidos' });
+        const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (result.rows.length === 0) return res.status(401).json({ error: 'Usuario o contraseña inválidos' });
 
+        const user = result.rows[0];
         const isValid = await bcrypt.compare(password, user.password);
         if (!isValid) return res.status(401).json({ error: 'Usuario o contraseña inválidos' });
 

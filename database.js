@@ -1,71 +1,55 @@
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
-import { promises as fs } from 'fs';
-import path from 'path';
+import pg from 'pg';
 
-let db = null;
+const { Pool } = pg;
+
+const pool = new Pool({
+    connectionString: 'postgresql://easyshop_v44l_user:axLs21immlxVEMATTcWuHvVjHE7vffDV@dpg-d48krapr0fns7383rbdg-a.oregon-postgres.render.com/easyshop_v44l',
+    ssl: {
+        rejectUnauthorized: false
+    }
+});
 
 async function initDatabase() {
-    if (!db) {
-        // Ensure the database directory exists
-        const dbPath = path.resolve('./database.sqlite');
-        
-        try {
-            // If database file exists but is corrupted, delete it
-            await fs.access(dbPath).catch(() => {});
-            
-            db = await open({
-                filename: dbPath,
-                driver: sqlite3.Database,
-                mode: sqlite3.OPEN_CREATE | sqlite3.OPEN_READWRITE
-            });
-        } catch (error) {
-            console.error('Error opening database:', error);
-            throw error;
-        }
-
+    try {
         // Crear tablas si no existen
-        await db.exec(`
+        await pool.query(`
             CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 name TEXT NOT NULL,
                 email TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
                 role TEXT DEFAULT 'user',
-                money REAL DEFAULT 1000
+                money DECIMAL DEFAULT 1000
             );
 
             CREATE TABLE IF NOT EXISTS products (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 name TEXT NOT NULL,
                 description TEXT,
                 stock INTEGER NOT NULL,
-                price REAL NOT NULL,
+                price DECIMAL NOT NULL,
                 image_url TEXT,
-                publisher_id INTEGER,
-                FOREIGN KEY (publisher_id) REFERENCES users(id)
+                publisher_id INTEGER REFERENCES users(id)
             );
 
             CREATE TABLE IF NOT EXISTS purchases (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER,
-                product_id INTEGER,
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id),
+                product_id INTEGER REFERENCES products(id),
                 quantity INTEGER DEFAULT 1,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(id),
-                FOREIGN KEY (product_id) REFERENCES products(id)
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
 
         console.log("Tablas creadas exitosamente.");
+    } catch (error) {
+        console.error("Error al inicializar la base de datos:", error);
+        throw error;
     }
-    return db;
 }
 
 // Inicializar la base de datos
-await initDatabase().catch((err) => {
-    console.error("Error al inicializar la base de datos:", err);
-});
+await initDatabase();
 
-export { db };
+export { pool as db };
 

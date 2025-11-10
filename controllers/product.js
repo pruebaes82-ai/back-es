@@ -10,14 +10,14 @@ export const createProduct = async (req, res) => {
         return res.status(400).json({ error: result.error.errors.map(e => e.message).join('. ') });
 
     try {
-        const dbResult = await db.run(
-            'INSERT INTO products (name, description, stock, price, image_url, publisher_id) VALUES (?, ?, ?, ?, ?, ?)',
-            name, description, stock, price, image_url, publisherId
+        const dbResult = await db.query(
+            'INSERT INTO products (name, description, stock, price, image_url, publisher_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+            [name, description, stock, price, image_url, publisherId]
         );
 
         res.json({
             message: `Producto creado: ${name}`,
-            product: { id: dbResult.lastID, name, description, stock, price, image_url, publisher_id: publisherId }
+            product: { id: dbResult.rows[0].id, name, description, stock, price, image_url, publisher_id: publisherId }
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
