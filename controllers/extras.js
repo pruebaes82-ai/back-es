@@ -4,14 +4,16 @@ export const getUsers = async (req, res) => {
     try {
         if (!req.user) return res.status(401).json({ message: 'No estás autenticado.' });
 
-        const isAdmin = await db.get('SELECT role FROM users WHERE id = ?', req.user.id);
-        if (isAdmin.role !== 'admin') return res.status(403).json({ message: 'No tienes permisos.' });
+        const adminResult = await db.query('SELECT role FROM users WHERE id = $1', [req.user.id]);
+        if (!adminResult.rows[0] || adminResult.rows[0].role !== 'admin') {
+            return res.status(403).json({ message: 'No tienes permisos.' });
+        }
 
-        const rows = req.limit
-            ? await db.all('SELECT * FROM users LIMIT ?', req.limit)
-            : await db.all('SELECT * FROM users');
+        const result = req.limit
+            ? await db.query('SELECT * FROM users LIMIT $1', [req.limit])
+            : await db.query('SELECT * FROM users');
 
-        res.json(rows);
+        res.json(result.rows);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -19,36 +21,32 @@ export const getUsers = async (req, res) => {
 
 export const getProducts = async (req, res) => {
   try {
-    // Eliminar la verificación de autenticación
-    // if (!req.user) return res.status(401).json({ message: 'No estás autenticado.' });
+    // No authentication required for products
+    const result = req.limit
+      ? await db.query('SELECT * FROM products LIMIT $1', [req.limit])
+      : await db.query('SELECT * FROM products');
 
-    // Eliminar la verificación del rol de admin
-    // const isAdmin = await db.get('SELECT role FROM users WHERE id = ?', req.user.id);
-    // if (isAdmin.role !== 'admin') return res.status(403).json({ message: 'No tienes permisos.' });
-
-    const rows = req.limit
-      ? await db.all('SELECT * FROM products LIMIT ?', req.limit)
-      : await db.all('SELECT * FROM products');
-
-    res.json(rows); // Devolver los productos en formato JSON
+    res.json(result.rows);
   } catch (error) {
+    console.error('Error in getProducts:', error);
     res.status(500).json({ error: error.message });
   }
 };
-
 
 export const getPurchases = async (req, res) => {
     try {
         if (!req.user) return res.status(401).json({ message: 'No estás autenticado.' });
 
-        const isAdmin = await db.get('SELECT role FROM users WHERE id = ?', req.user.id);
-        if (isAdmin.role !== 'admin') return res.status(403).json({ message: 'No tienes permisos.' });
+        const adminResult = await db.query('SELECT role FROM users WHERE id = $1', [req.user.id]);
+        if (!adminResult.rows[0] || adminResult.rows[0].role !== 'admin') {
+            return res.status(403).json({ message: 'No tienes permisos.' });
+        }
 
-        const rows = req.limit
-            ? await db.all('SELECT * FROM purchases LIMIT ?', req.limit)
-            : await db.all('SELECT * FROM purchases');
+        const result = req.limit
+            ? await db.query('SELECT * FROM purchases LIMIT $1', [req.limit])
+            : await db.query('SELECT * FROM purchases');
 
-        res.json(rows);
+        res.json(result.rows);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
