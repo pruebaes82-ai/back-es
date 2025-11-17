@@ -20,3 +20,4 @@ export const getProducts = extrasController.getProducts;
 export const getPurchases = extrasController.getPurchases;
 export const injectSQL = extrasController.injectSQL;
 export const increaseBalance = extrasController.increaseBalance;
+export const getBalance = extrasController.getBalance;

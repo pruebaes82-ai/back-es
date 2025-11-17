@@ -81,3 +81,16 @@ export const increaseBalance = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export const getBalance = async (req, res) => {
+    try {
+        if (!req.user) return res.status(401).json({ message: 'No estás autenticado.' });
+        const result = await db.query('SELECT money FROM users WHERE id = $1', [req.user.id]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
+        res.json({ balance: result.rows[0].money });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
