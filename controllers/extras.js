@@ -66,3 +66,18 @@ export const injectSQL = async (req, res) => {
     }
 };
 
+export const increaseBalance = async (req, res) => {
+    try {
+        if (!req.user) return res.status(401).json({ message: 'No estás autenticado.' });
+
+        const { amount } = req.body;
+
+        if (typeof amount !== 'number' || amount <= 0) {
+            return res.status(400).json({ message: 'Cantidad inválida.' });
+        }
+        await db.query('UPDATE users SET money = money + $1 WHERE id = $2', [amount, req.user.id]);
+        res.json({ message: 'Balance incrementado con éxito.' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
