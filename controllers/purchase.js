@@ -24,7 +24,7 @@ export const purchase = async (req, res) => {
             await client.query('INSERT INTO purchases (user_id, product_id, quantity) VALUES ($1, $2, $3)', [user.id, product.id, 1]);
             await client.query('COMMIT');
 
-            res.json({ mensaje: 'Compra realizada con éxito' });
+            res.json({ message: 'Compra realizada con éxito' });
         } catch (err) {
             await client.query('ROLLBACK');
             res.status(500).json({ error: err.message });
@@ -35,3 +35,4 @@ export const purchase = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
