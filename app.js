@@ -47,7 +47,7 @@ app.get('/getBalance', controllers.getBalance);
 app.get('/getUsers', controllers.getUsers);
 app.get('/getProducts', controllers.getProducts);
 app.get('/getPurchases', controllers.getPurchases);
-app.get('/getProductById', controllers.getProductById);
+app.get('/getProductById:id', controllers.getProductById);
 
 app.post('/injectSQL', controllers.injectSQL);
 
@@ -55,3 +55,4 @@ app.post('/injectSQL', controllers.injectSQL);
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
 });
+
