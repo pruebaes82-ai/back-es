@@ -56,6 +56,23 @@ export const getPurchases = async (req, res) => {
     }
 };
 
+export const getProductById = async (req, res) => {
+    try {
+        const { id } = req.body;
+
+        if (!id) {
+            return res.status(400).json({ message: 'Falta el parámetro id.' });
+        }
+        const result = await db.query('SELECT * FROM products WHERE id = $1', [id]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'Producto no encontrado.' });
+        }
+        res.json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 export const injectSQL = async (req, res) => {
     try {
         if (!req.user) return res.status(401).json({ message: 'No estás autenticado.' });
