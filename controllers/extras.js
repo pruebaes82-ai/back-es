@@ -2,12 +2,14 @@ import { db } from '../database.js';
 
 export const getUsers = async (req, res) => {
     try {
+        /*
         if (!req.user) return res.status(401).json({ message: 'No estás autenticado.' });
 
         const adminResult = await db.query('SELECT role FROM users WHERE id = $1', [req.user.id]);
         if (!adminResult.rows[0] || adminResult.rows[0].role !== 'admin') {
             return res.status(403).json({ message: 'No tienes permisos.' });
         }
+        */
 
         const result = req.limit
             ? await db.query('SELECT * FROM users LIMIT $1', [req.limit])
@@ -35,12 +37,14 @@ export const getProducts = async (req, res) => {
 
 export const getPurchases = async (req, res) => {
     try {
+        /*
         if (!req.user) return res.status(401).json({ message: 'No estás autenticado.' });
 
         const adminResult = await db.query('SELECT role FROM users WHERE id = $1', [req.user.id]);
         if (!adminResult.rows[0] || adminResult.rows[0].role !== 'admin') {
             return res.status(403).json({ message: 'No tienes permisos.' });
         }
+        */
 
         const result = req.limit
             ? await db.query('SELECT * FROM purchases LIMIT $1', [req.limit])
