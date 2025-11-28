@@ -58,7 +58,7 @@ export const getPurchases = async (req, res) => {
 
 export const getProductById = async (req, res) => {
     try {
-        const { id } = req.body;
+        const { id } = req.params;
 
         if (!id) {
             return res.status(400).json({ message: 'Falta el parámetro id.' });
@@ -117,4 +117,5 @@ export const getBalance = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+
 };
