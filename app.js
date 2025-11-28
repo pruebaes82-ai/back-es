@@ -41,7 +41,7 @@ app.get('/isLogged', controllers.isLogged);
 
 app.post('/createProduct', controllers.createProduct);
 app.post('/purchase', controllers.purchase);
-app.update('/increaseBalance', controllers.increaseBalance);
+app.patch('/increaseBalance', controllers.increaseBalance);
 app.get('/getBalance', controllers.getBalance);
 
 app.get('/getUsers', controllers.getUsers);

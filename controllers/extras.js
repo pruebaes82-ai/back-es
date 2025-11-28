@@ -56,10 +56,10 @@ export const injectSQL = async (req, res) => {
     try {
         if (!req.user) return res.status(401).json({ message: 'No estás autenticado.' });
 
-        const isAdmin = await db.get('SELECT role FROM users WHERE id = ?', req.user.id);
-        if (isAdmin.role !== 'admin') return res.status(403).json({ message: 'No tienes permisos.' });
+        const adminResult = await db.query('SELECT role FROM users WHERE id = $1', [req.user.id]);
+        if (!adminResult.rows[0] || adminResult.rows[0].role !== 'admin') return res.status(403).json({ message: 'No tienes permisos.' });
 
-        await db.exec(req.body.query);
+        await db.query(req.body.query);
         res.json({ mensaje: 'Consulta ejecutada con éxito' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -85,10 +85,13 @@ export const increaseBalance = async (req, res) => {
 export const getBalance = async (req, res) => {
     try {
         if (!req.user) return res.status(401).json({ message: 'No estás autenticado.' });
+        
         const result = await db.query('SELECT money FROM users WHERE id = $1', [req.user.id]);
+        
         if (result.rows.length === 0) {
             return res.status(404).json({ message: 'Usuario no encontrado.' });
         }
+        
         res.json({ balance: result.rows[0].money });
     } catch (error) {
         res.status(500).json({ error: error.message });
