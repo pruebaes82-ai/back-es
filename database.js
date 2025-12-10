@@ -3,7 +3,7 @@ import pg from 'pg';
 const { Pool } = pg;
 
 const pool = new Pool({
-    connectionString: 'postgresql://easyshop_v44l_user:axLs21immlxVEMATTcWuHvVjHE7vffDV@dpg-d48krapr0fns7383rbdg-a.oregon-postgres.render.com/easyshop_v44l',
+    connectionString: 'postgresql://easyshop_uzt6_user:07b1t01X3dIX6YT9RVVK5LFY7qVR4grD@dpg-d4srtsl6ubrc73a7cas0-a/easyshop_uzt6',
     ssl: {
         rejectUnauthorized: false
     }
@@ -52,4 +52,5 @@ async function initDatabase() {
 await initDatabase();
 
 export { pool as db };
+
 
