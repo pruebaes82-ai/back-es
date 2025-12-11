@@ -56,6 +56,25 @@ export const getPurchases = async (req, res) => {
     }
 };
 
+export const getMyProducts = async (req, res) => {
+    try {
+        if (!req.user) return res.status(401).json({ message: 'No estás autenticado.' });
+
+        const result = await db.query(
+            `SELECT p.name, p.description, p.price, p.image_url
+             FROM purchases pu
+             JOIN products p ON p.id = pu.product_id
+             WHERE pu.user_id = $1`,
+            [req.user.id]
+        );
+
+        // If you prefer unique products, you can use DISTINCT in the query
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 export const getProductById = async (req, res) => {
     try {
         const { id } = req.params;

@@ -22,3 +22,4 @@ export const getProductById = extrasController.getProductById;
 export const injectSQL = extrasController.injectSQL;
 export const increaseBalance = extrasController.increaseBalance;
 export const getBalance = extrasController.getBalance;
+export const getMyProducts = extrasController.getMyProducts;

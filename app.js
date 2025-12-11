@@ -48,6 +48,7 @@ app.get('/getUsers', controllers.getUsers);
 app.get('/getProducts', controllers.getProducts);
 app.get('/getPurchases', controllers.getPurchases);
 app.get('/getProductById/:id', controllers.getProductById);
+app.get('/getMyProducts', controllers.getMyProducts);
 
 app.post('/injectSQL', controllers.injectSQL);
 
